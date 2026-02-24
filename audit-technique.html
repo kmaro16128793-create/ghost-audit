@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Technique | Site Focus — Ghost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   RESET & BASE
+============================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #000;
+  color: #fff;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   CSS VARIABLES — Identiques au site Focus
+============================================ */
+:root {
+  --gold: #C9A227;
+  --gold-light: #D4AF37;
+  --gold-dark: #8B6914;
+  --gold-dim: rgba(184,134,11,0.12);
+  --gold-border: rgba(184,134,11,0.3);
+  --gold-glow: rgba(212,175,55,0.2);
+  --bg: #000000;
+  --bg-card: #0a0a0a;
+  --bg-elevated: #111111;
+  --bg-section: #030303;
+  --border: rgba(255,255,255,0.06);
+  --border-med: rgba(255,255,255,0.1);
+  --text-muted: #888;
+  --text-dim: #555;
+  --green: #22c55e;
+  --blue: #3b82f6;
+  --purple: #a855f7;
+  --red: #ef4444;
+}
+
+/* ============================================
+   SCROLL PROGRESS BAR
+============================================ */
+#scroll-progress {
+  position: fixed; top: 0; left: 0;
+  height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+  box-shadow: 0 0 20px var(--gold-glow);
+  z-index: 10000;
+  transition: width 0.05s linear;
+}
+
+/* ============================================
+   NAV FIXE — Glassmorphism
+============================================ */
+nav {
+  position: fixed; top: 3px; left: 0; right: 0;
+  height: 60px; z-index: 9999;
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  background: rgba(0,0,0,0.8);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 0.75rem;
+  text-decoration: none;
+}
+.nav-logo svg { height: 24px; width: auto; fill: var(--gold); }
+.nav-brand { font-weight: 700; font-size: 1rem; color: #fff; letter-spacing: -0.02em; }
+.nav-brand span { color: var(--gold); }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a {
+  color: var(--text-muted); text-decoration: none;
+  font-size: 0.875rem; font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--gold); }
+.badge-live {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
+  color: #ef4444; padding: 0.25rem 0.75rem; border-radius: 100px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.badge-live::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #ef4444;
+  animation: pulse-dot 1.5s infinite;
+}
+
+/* ============================================
+   WATERMARK LOGO
+============================================ */
+#watermark {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1; pointer-events: none;
+  width: 60vw; max-width: 750px;
+  opacity: 0.04; color: var(--gold);
+}
+#watermark svg { width: 100%; height: auto; fill: currentColor; }
+
+/* ============================================
+   HERO
+============================================ */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 8rem 2rem 6rem;
+  text-align: center;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+}
+.aurora {
+  position: absolute; border-radius: 50%;
+  filter: blur(100px); pointer-events: none;
+}
+.aurora-1 {
+  width: 600px; height: 400px; top: -100px; left: -100px;
+  background: radial-gradient(ellipse, rgba(184,134,11,0.15), transparent 70%);
+  animation: auroraFloat 12s ease-in-out infinite;
+}
+.aurora-2 {
+  width: 500px; height: 400px; bottom: -100px; right: -100px;
+  background: radial-gradient(ellipse, rgba(184,134,11,0.1), transparent 70%);
+  animation: auroraFloat 15s ease-in-out infinite reverse;
+}
+.aurora-3 {
+  width: 400px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  background: radial-gradient(ellipse, rgba(184,134,11,0.06), transparent 70%);
+  animation: auroraFloat 10s ease-in-out infinite 3s;
+}
+.hero-content { position: relative; z-index: 2; max-width: 900px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  color: var(--gold); padding: 0.4rem 1rem; border-radius: 100px;
+  font-size: 0.8rem; font-weight: 600; margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease-out both;
+}
+.hero-title {
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-weight: 900; line-height: 1.05;
+  letter-spacing: -0.04em; margin-bottom: 1.5rem;
+  animation: fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+}
+.hero-title .gold {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--text-muted); max-width: 600px; margin: 0 auto 3rem;
+  animation: fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+  animation: fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+}
+.hero-stat-value {
+  font-size: 2rem; font-weight: 800; color: var(--gold);
+}
+.hero-stat-label {
+  font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ============================================
+   SECTIONS
+============================================ */
+.section {
+  padding: 6rem 2rem;
+}
+.section-dark { background: var(--bg); }
+.section-alt { background: var(--bg-section); }
+.section-gradient {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(184,134,11,0.06), transparent);
+}
+.container { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  display: inline-block;
+  color: var(--gold); font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1.15; margin-bottom: 1rem;
+}
+.section-title .gold {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.section-subtitle {
+  color: var(--text-muted); font-size: 1.05rem;
+  max-width: 600px; margin-bottom: 3rem;
+}
+.section-number {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1rem; color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   CARDS
+============================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.75rem;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--gold-glow);
+  border-color: var(--gold-border);
+}
+.card-gold {
+  background: var(--gold-dim); border-color: var(--gold-border);
+}
+.card-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 1rem;
+}
+.card h3 {
+  font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+
+/* ============================================
+   GRIDS
+============================================ */
+.grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+@media(max-width:768px) {
+  .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; }
+  .hero-stats { gap: 1.5rem; }
+  nav .nav-links { display: none; }
+}
+
+/* ============================================
+   CODE BLOCKS
+============================================ */
+.code-block {
+  background: #0d0d0d; border: 1px solid var(--border-med);
+  border-radius: 12px; overflow: hidden; margin: 1.5rem 0;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--border);
+}
+.code-lang {
+  font-size: 0.75rem; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.code-dots { display: flex; gap: 6px; }
+.code-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green { background: #28c840; }
+pre {
+  padding: 1.5rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem; line-height: 1.8;
+  color: #e0e0e0;
+}
+.kw { color: #bb9af7; } /* keywords */
+.fn { color: #7dcfff; } /* functions */
+.st { color: #9ece6a; } /* strings */
+.cm { color: #565f89; font-style: italic; } /* comments */
+.nm { color: #e0af68; } /* numbers */
+.pr { color: #f7768e; } /* properties */
+.vr { color: #73daca; } /* variables */
+.at { color: #2ac3de; } /* at-rules */
+.sel { color: #c0caf5; } /* selectors */
+.val { color: #ff9e64; } /* values */
+
+/* ============================================
+   TECH TAGS
+============================================ */
+.tech-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.tag {
+  padding: 0.3rem 0.75rem; border-radius: 6px;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.03em;
+}
+.tag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.tag-blue { background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.tag-green { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.tag-purple { background: rgba(168,85,247,0.1); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+.tag-red { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+/* ============================================
+   STAT BOXES
+============================================ */
+.stat-box {
+  text-align: center; padding: 2rem 1rem;
+}
+.stat-value {
+  font-size: 2.5rem; font-weight: 900; color: var(--gold);
+  letter-spacing: -0.04em; line-height: 1;
+}
+.stat-label {
+  color: var(--text-muted); font-size: 0.8rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   TIP BOX
+============================================ */
+.tip-box {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-left: 3px solid var(--gold); border-radius: 0 12px 12px 0;
+  padding: 1.25rem 1.5rem; margin: 1.5rem 0;
+}
+.tip-box-title {
+  font-weight: 700; color: var(--gold); font-size: 0.85rem;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;
+}
+.tip-box p { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ============================================
+   PALETTE DEMO
+============================================ */
+.palette { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+.color-chip {
+  width: 60px; height: 60px; border-radius: 10px;
+  border: 1px solid var(--border);
+  position: relative; cursor: default;
+}
+.color-chip::after {
+  content: attr(data-hex);
+  position: absolute; bottom: -1.6rem; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem; color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.palette-wrap { padding-bottom: 2.5rem; }
+
+/* ============================================
+   ANIMATION DEMO STRIP
+============================================ */
+.anim-demo {
+  display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.5rem 0;
+}
+.anim-chip {
+  padding: 0.5rem 1rem;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--gold); cursor: default;
+  transition: background 0.2s, border-color 0.2s;
+}
+.anim-chip:hover { background: var(--gold-dim); border-color: var(--gold-border); }
+
+/* ============================================
+   TIMELINE
+============================================ */
+.timeline { position: relative; padding-left: 2rem; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, var(--gold), transparent);
+}
+.timeline-item {
+  position: relative; padding: 0 0 2.5rem 1.5rem;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute; left: -0.4rem; top: 0.3rem;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 10px var(--gold-glow);
+}
+.timeline-label {
+  font-size: 0.75rem; color: var(--gold); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem;
+}
+.timeline-title {
+  font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem;
+}
+.timeline-text { color: var(--text-muted); font-size: 0.875rem; }
+
+/* ============================================
+   SCROLL PROGRESS DEMO
+============================================ */
+.scroll-demo {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+  box-shadow: 0 0 15px var(--gold-glow);
+  margin: 1rem 0;
+  animation: progressDemo 3s ease-in-out infinite alternate;
+}
+@keyframes progressDemo {
+  from { width: 15%; }
+  to { width: 95%; }
+}
+
+/* ============================================
+   SECTION OBSERVER DEMO
+============================================ */
+.observer-demo {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+  margin: 1.5rem 0;
+}
+.obs-card {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem; text-align: center;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+.obs-card.active {
+  border-color: var(--gold-border);
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
+/* ============================================
+   FOOTER
+============================================ */
+footer {
+  background: var(--bg-section);
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem; text-align: center;
+}
+footer svg { height: 32px; fill: var(--gold); margin-bottom: 1rem; }
+.footer-text { color: var(--text-muted); font-size: 0.875rem; }
+.footer-text span { color: var(--gold); }
+
+/* ============================================
+   FADE-IN SCROLL ANIMATIONS
+============================================ */
+.fade-in-up {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+              transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.fade-in-up.visible { opacity: 1; transform: translateY(0); }
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
+
+/* ============================================
+   KEYFRAMES
+============================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes auroraFloat {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%     { transform: translate(40px,-30px) scale(1.05); }
+  66%     { transform: translate(-20px,20px) scale(0.95); }
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.5; transform: scale(0.8); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-8px); }
+}
+
+/* ============================================
+   SCROLLBAR
+============================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: rgba(184,134,11,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(184,134,11,0.5); }
+</style>
+</head>
+<body>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"></div>
+
+<!-- WATERMARK -->
+<div id="watermark">
+  <svg viewBox="0 0 685 226" xmlns="http://www.w3.org/2000/svg">
+    <path d="M123.05 0V36.93H41.15V87.33L41.45 87.63H120.65V124.36H41.45L41.15 124.66V202.01L20.52 213.39L0.200012 225.56L0 28.35V8.38998C1 4.14998 4.13998 0.999979 8.38998 0.00997925H123.05V0Z"/>
+    <path d="M684.76 155.69C684.3 162.55 682.54 168.78 679 174.59C657.71 209.53 591.44 208.07 575.2 169.06C574.33 166.97 572.7 162.5 572.68 160.39C572.68 159.89 572.61 159.01 573.18 158.85L602.11 152.94C602.43 153.01 602.65 153.15 602.81 153.44C603.3 154.29 603.75 157.04 604.21 158.23C609.7 172.37 631.26 176.02 643.53 169.31C651.98 164.69 655.5 151.56 646.97 145.44C636.17 137.68 613.96 137.51 600.61 132.28C581.75 124.9 574.6 111.86 575.46 91.9201C577.08 54.4901 621.28 45.0201 650.93 55.0401C661.71 58.6801 673.82 66.5201 678.28 77.4101C679.44 80.2401 680.25 83.7801 680.92 86.5801C681.06 87.1801 681.451 89.5701 680.621 89.6301L651.91 95.3901C650.44 95.1601 648.581 90.6201 647.741 89.3701C641.341 79.8101 627.08 76.1101 616.42 79.7601C606.92 83.0101 604.5 94.3901 610.92 101.81C619.97 112.28 647.81 112.72 661.3 118.14C674.79 123.56 683.941 136.92 684.731 151.91V155.7L684.76 155.69Z"/>
+    <path d="M136.36 152.17C128.57 129.83 131.95 102.66 144.62 82.7301C171.03 41.2201 237.72 40.2801 264.04 82.3701C283.39 113.32 278.68 161.78 248.99 184.83C220.93 206.6 174.85 204.71 150.71 177.85C143.97 170.36 139.64 161.62 136.35 152.17H136.36ZM201.71 80.8901C154.25 83.5201 153.15 162.87 196.07 169.86C211.24 172.33 227.79 166.66 236.04 153.31C253.52 125 240.3 78.7501 201.72 80.8901H201.71Z"/>
+  </svg>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg viewBox="0 0 124 226" xmlns="http://www.w3.org/2000/svg"><path d="M123.05 0V36.93H41.15V87.33L41.45 87.63H120.65V124.36H41.45L41.15 124.66V202.01L20.52 213.39L0.200012 225.56L0 28.35V8.38998C1 4.14998 4.13998 0.999979 8.38998 0.00997925H123.05V0Z"/></svg>
+    <span class="nav-brand">Ghost <span>Audit</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#stack">Stack</a>
+    <a href="#design">Design</a>
+    <a href="#animations">Animations</a>
+    <a href="#scroll">Scroll</a>
+    <a href="#composants">Composants</a>
+    <a href="#reproduire">Reproduire</a>
+  </div>
+  <span class="badge-live">Audit Complet</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="aurora aurora-3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">🔍 Audit Technique — mentalitefocus.com</div>
+    <h1 class="hero-title">
+      Décryptage<br><span class="gold">Complet du Site</span>
+    </h1>
+    <p class="hero-subtitle">
+      Toutes les technologies, le code exact, les animations et l'architecture du site Focus — expliqués avec les mêmes techniques qu'il utilise.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-value">0€</div>
+        <div class="hero-stat-label">Coût total</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">42</div>
+        <div class="hero-stat-label">Pages HTML</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">35+</div>
+        <div class="hero-stat-label">Animations CSS</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">0</div>
+        <div class="hero-stat-label">Dépendances JS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 1 — STACK TECHNIQUE
+=========================================== -->
+<section class="section section-alt" id="stack">
+  <div class="container">
+    <div class="section-number fade-in-up">01</div>
+    <div class="section-label fade-in-up">Technologies</div>
+    <h2 class="section-title fade-in-up"><span class="gold">Stack</span> Technique Globale</h2>
+    <p class="section-subtitle fade-in-up">Zero framework. Zero dépendance. Du HTML/CSS/JS pur, servi statiquement sur Vercel.</p>
+
+    <div class="grid-3 fade-in-up">
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <h3>HTML5 Pur</h3>
+        <p>Aucun template engine, aucun framework. Chaque page est un fichier .html autonome avec tout le CSS et JS inline.</p>
+        <div class="tech-tags"><span class="tag tag-blue">Sémantique</span><span class="tag tag-blue">Accessible</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>CSS3 Natif</h3>
+        <p>CSS Variables, Grid, Flexbox, @keyframes, backdrop-filter, IntersectionObserver. Tout le design system en variables.</p>
+        <div class="tech-tags"><span class="tag tag-purple">Variables</span><span class="tag tag-purple">Grid</span><span class="tag tag-purple">Keyframes</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>JavaScript Vanilla</h3>
+        <p>JavaScript vanilla + <strong>GSAP 3.12.5</strong> (ScrollTrigger) pour les animations scroll, et <strong>VanillaTilt 1.8.0</strong> pour l'effet 3D holographique sur les cartes (desktop uniquement).</p>
+        <div class="tech-tags"><span class="tag tag-gold">IntersectionObserver</span><span class="tag tag-gold">localStorage</span><span class="tag tag-green">GSAP 3.12.5</span><span class="tag tag-green">VanillaTilt 1.8.0</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2 fade-in-up" style="margin-top:1.5rem">
+      <div class="card card-gold">
+        <div class="card-icon">🔤</div>
+        <h3>Police : Inter</h3>
+        <p>Chargée via Google Fonts CDN. 7 graisses utilisées : 300, 400, 500, 600, 700, 800, 900.</p>
+        <div class="code-block" style="margin-top:1rem">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">HTML</span>
+          </div>
+          <pre><span class="kw">&lt;link</span> <span class="pr">href</span>=<span class="st">"https://fonts.googleapis.com/css2?
+  family=Inter:wght@300;400;500;600;700;800;900
+  &display=swap"</span>
+  <span class="pr">rel</span>=<span class="st">"stylesheet"</span><span class="kw">&gt;</span></pre>
+        </div>
+      </div>
+      <div class="card card-gold">
+        <div class="card-icon">🚀</div>
+        <h3>Hébergement : Vercel</h3>
+        <p>Déploiement gratuit. Drag & drop du dossier = live en 30 secondes. CDN mondial automatique.</p>
+        <div class="tip-box">
+          <div class="tip-box-title">💡 Procédure</div>
+          <p>1. Créer compte Vercel<br>2. Drag & drop le dossier<br>3. URL publique générée instantanément</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 2 — DESIGN SYSTEM
+=========================================== -->
+<section class="section section-dark" id="design">
+  <div class="container">
+    <div class="section-number fade-in-up">02</div>
+    <div class="section-label fade-in-up">Design System</div>
+    <h2 class="section-title fade-in-up">Palette & <span class="gold">Variables CSS</span></h2>
+    <p class="section-subtitle fade-in-up">Tout le design repose sur des CSS Custom Properties. Un seul fichier theme.css contrôle l'apparence de toutes les pages.</p>
+
+    <div class="fade-in-up">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+          <span class="code-lang">CSS — theme.css</span>
+        </div>
+        <pre><span class="at">:root</span> {
+  <span class="cm">/* ── Couleurs Or ── */</span>
+  <span class="pr">--gold</span>:       <span class="val">#B8860B</span>;   <span class="cm">/* or principal */</span>
+  <span class="pr">--gold-light</span>: <span class="val">#D4AF37</span>;   <span class="cm">/* or clair */</span>
+  <span class="pr">--gold-dark</span>:  <span class="val">#8B6914</span>;   <span class="cm">/* or foncé */</span>
+  <span class="pr">--gold-dim</span>:   <span class="val">rgba(184,134,11,0.12)</span>; <span class="cm">/* fond teinté */</span>
+  <span class="pr">--gold-glow</span>:  <span class="val">rgba(212,175,55,0.2)</span>;  <span class="cm">/* halo */</span>
+
+  <span class="cm">/* ── Fonds ── */</span>
+  <span class="pr">--bg-page</span>:    <span class="val">#000000</span>;
+  <span class="pr">--bg-card</span>:    <span class="val">#0a0a0a</span>;
+  <span class="pr">--bg-section</span>: <span class="val">#030303</span>;
+
+  <span class="cm">/* ── Textes ── */</span>
+  <span class="pr">--text-primary</span>: <span class="val">#ffffff</span>;
+  <span class="pr">--text-muted</span>:   <span class="val">#888888</span>;
+  <span class="pr">--text-dim</span>:     <span class="val">#555555</span>;
+
+  <span class="cm">/* ── Ombres ── */</span>
+  <span class="pr">--shadow-soft</span>:   <span class="val">0 2px 8px rgba(0,0,0,0.4)</span>;
+  <span class="pr">--shadow-gold</span>:   <span class="val">0 0 40px rgba(212,175,55,0.15)</span>;
+  <span class="pr">--card-hover-shadow</span>: <span class="val">0 12px 32px rgba(212,175,55,0.1),
+                        0 24px 48px rgba(0,0,0,0.5)</span>;
+}</pre>
+      </div>
+    </div>
+
+    <div class="palette-wrap fade-in-up delay-2">
+      <h3 style="margin-bottom:1.5rem;font-size:1rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em">Palette exacte utilisée</h3>
+      <div class="palette">
+        <div class="color-chip" style="background:#B8860B" data-hex="#B8860B"></div>
+        <div class="color-chip" style="background:#D4AF37" data-hex="#D4AF37"></div>
+        <div class="color-chip" style="background:#8B6914" data-hex="#8B6914"></div>
+        <div class="color-chip" style="background:#000000;border:1px solid #333" data-hex="#000000"></div>
+        <div class="color-chip" style="background:#0a0a0a;border:1px solid #333" data-hex="#0a0a0a"></div>
+        <div class="color-chip" style="background:#111111;border:1px solid #333" data-hex="#111111"></div>
+        <div class="color-chip" style="background:#22c55e" data-hex="#22c55e"></div>
+        <div class="color-chip" style="background:#ef4444" data-hex="#ef4444"></div>
+        <div class="color-chip" style="background:#3b82f6" data-hex="#3b82f6"></div>
+        <div class="color-chip" style="background:#f59e0b" data-hex="#f59e0b"></div>
+        <div class="color-chip" style="background:#a855f7" data-hex="#a855f7"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 3 — BACKGROUNDS
+=========================================== -->
+<section class="section section-gradient" id="backgrounds">
+  <div class="container">
+    <div class="section-number fade-in-up">03</div>
+    <div class="section-label fade-in-up">Effets Visuels</div>
+    <h2 class="section-title fade-in-up">Backgrounds & <span class="gold">Aurora</span></h2>
+    <p class="section-subtitle fade-in-up">Trois techniques superposées pour créer la profondeur visuelle sans aucune image.</p>
+
+    <div class="grid-3 fade-in-up">
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <h3>Dot Grid</h3>
+        <p>Grille de points créée en CSS pur avec radial-gradient répété.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">body</span> {
+  <span class="pr">background-image</span>:
+    <span class="fn">radial-gradient</span>(
+      <span class="val">circle at 1px 1px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 0</span>
+    );
+  <span class="pr">background-size</span>: <span class="val">32px 32px</span>;
+}</pre>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">✨</div>
+        <h3>Gold Glow</h3>
+        <p>Halo doré en haut de page avec un radial-gradient en ellipse.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">body</span> {
+  <span class="pr">background-image</span>:
+    <span class="fn">radial-gradient</span>(
+      <span class="val">ellipse 80% 50%
+      at 50% -20%,
+      rgba(184,134,11,0.08),
+      transparent</span>
+    );
+}</pre>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌊</div>
+        <h3>Aurora Animée</h3>
+        <p>3 divs floutés avec filter: blur() et animation CSS, superposés en position absolute.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">.aurora</span> {
+  <span class="pr">position</span>: <span class="val">absolute</span>;
+  <span class="pr">border-radius</span>: <span class="val">50%</span>;
+  <span class="pr">filter</span>: <span class="fn">blur</span>(<span class="val">100px</span>);
+  <span class="pr">background</span>: <span class="fn">radial-gradient</span>(
+    <span class="val">ellipse,
+    rgba(184,134,11,0.15),
+    transparent 70%</span>);
+  <span class="pr">animation</span>: <span class="val">auroraFloat
+    12s ease-in-out infinite</span>;
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-in-up delay-2" style="margin-top:2rem">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+          <span class="code-lang">CSS — @keyframes auroraFloat</span>
+        </div>
+        <pre><span class="at">@keyframes</span> <span class="fn">auroraFloat</span> {
+  <span class="nm">0%</span>, <span class="nm">100%</span>  { <span class="pr">transform</span>: <span class="fn">translate</span>(<span class="val">0, 0</span>) <span class="fn">scale</span>(<span class="val">1</span>); }
+  <span class="nm">33%</span>       { <span class="pr">transform</span>: <span class="fn">translate</span>(<span class="val">40px, -30px</span>) <span class="fn">scale</span>(<span class="val">1.05</span>); }
+  <span class="nm">66%</span>       { <span class="pr">transform</span>: <span class="fn">translate</span>(<span class="val">-20px, 20px</span>) <span class="fn">scale</span>(<span class="val">0.95</span>); }
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 4 — ANIMATIONS
+=========================================== -->
+<section class="section section-dark" id="animations">
+  <div class="container">
+    <div class="section-number fade-in-up">04</div>
+    <div class="section-label fade-in-up">Animations</div>
+    <h2 class="section-title fade-in-up">35+ <span class="gold">@keyframes</span> CSS + GSAP</h2>
+    <p class="section-subtitle fade-in-up">Animations CSS pures + <strong>GSAP 3.12.5</strong> (ScrollTrigger) chargé via CDN pour les animations au scroll. VanillaTilt pour l'effet 3D holographique sur les cartes.</p>
+
+    <div class="fade-in-up">
+      <div class="anim-demo">
+        <span class="anim-chip">fadeInUp</span>
+        <span class="anim-chip">fadeInDown</span>
+        <span class="anim-chip">fadeIn</span>
+        <span class="anim-chip">fadeSlide</span>
+        <span class="anim-chip">float</span>
+        <span class="anim-chip">floatIcon</span>
+        <span class="anim-chip">shimmer</span>
+        <span class="anim-chip">shimmer-sweep</span>
+        <span class="anim-chip">goldFlow</span>
+        <span class="anim-chip">goldShimmer</span>
+        <span class="anim-chip">gradientFlow</span>
+        <span class="anim-chip">gradientShift</span>
+        <span class="anim-chip">pulse</span>
+        <span class="anim-chip">pulse-dot</span>
+        <span class="anim-chip">pulse-gold</span>
+        <span class="anim-chip">badgePulse</span>
+        <span class="anim-chip">badge-glow</span>
+        <span class="anim-chip">hypePulse</span>
+        <span class="anim-chip">liveBlink</span>
+        <span class="anim-chip">blink-cursor</span>
+        <span class="anim-chip">typing</span>
+        <span class="anim-chip">spin</span>
+        <span class="anim-chip">bounce</span>
+        <span class="anim-chip">wave</span>
+        <span class="anim-chip">scrollDown</span>
+        <span class="anim-chip">meshFloat1/2/3</span>
+        <span class="anim-chip">auroraMove</span>
+        <span class="anim-chip">auroraFloat</span>
+        <span class="anim-chip">modalSlideUp</span>
+        <span class="anim-chip">successPop</span>
+        <span class="anim-chip">bubbleIn</span>
+        <span class="anim-chip">chatFadeIn</span>
+        <span class="anim-chip">rippleAnim</span>
+        <span class="anim-chip">confettiFall</span>
+      </div>
+    </div>
+
+    <div class="grid-2 fade-in-up delay-2" style="margin-top:2rem">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+          <span class="code-lang">CSS — fadeInUp</span>
+        </div>
+        <pre><span class="at">@keyframes</span> <span class="fn">fadeInUp</span> {
+  <span class="nm">from</span> {
+    <span class="pr">opacity</span>: <span class="val">0</span>;
+    <span class="pr">transform</span>: <span class="fn">translateY</span>(<span class="val">30px</span>);
+  }
+  <span class="nm">to</span> {
+    <span class="pr">opacity</span>: <span class="val">1</span>;
+    <span class="pr">transform</span>: <span class="fn">translateY</span>(<span class="val">0</span>);
+  }
+}</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+          <span class="code-lang">CSS — shimmer (boutons)</span>
+        </div>
+        <pre><span class="sel">.btn-shimmer</span> {
+  <span class="pr">background</span>: <span class="fn">linear-gradient</span>(
+    <span class="val">90deg,
+    #8B6914 0%,
+    #D4AF37 50%,
+    #8B6914 100%</span>);
+  <span class="pr">background-size</span>: <span class="val">200% auto</span>;
+  <span class="pr">animation</span>: <span class="val">shimmer 2s linear infinite</span>;
+}
+<span class="at">@keyframes</span> <span class="fn">shimmer</span> {
+  <span class="nm">0%</span>   { <span class="pr">background-position</span>: <span class="val">-200% center</span>; }
+  <span class="nm">100%</span> { <span class="pr">background-position</span>: <span class="val">200% center</span>; }
+}</pre>
+      </div>
+    </div>
+
+    <div class="code-block fade-in-up delay-3">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <span class="code-lang">CSS — Texte dégradé or (titre hero)</span>
+      </div>
+      <pre><span class="sel">.gold-text</span> {
+  <span class="pr">background</span>: <span class="fn">linear-gradient</span>(<span class="val">135deg, #8B6914, #D4AF37</span>);
+  <span class="pr">-webkit-background-clip</span>: <span class="val">text</span>;
+  <span class="pr">-webkit-text-fill-color</span>: <span class="val">transparent</span>;
+  <span class="pr">background-clip</span>: <span class="val">text</span>;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 5 — SCROLL
+=========================================== -->
+<section class="section section-alt" id="scroll">
+  <div class="container">
+    <div class="section-number fade-in-up">05</div>
+    <div class="section-label fade-in-up">Scroll</div>
+    <h2 class="section-title fade-in-up"><span class="gold">IntersectionObserver</span> + Progress Bar</h2>
+    <p class="section-subtitle fade-in-up">Animations déclenchées au scroll sans aucune librairie. L'API native du navigateur fait tout le travail.</p>
+
+    <div class="fade-in-up">
+      <h3 style="margin-bottom:0.5rem;font-size:0.9rem;color:var(--text-muted)">Barre de progression scroll — aperçu live :</h3>
+      <div class="scroll-demo"></div>
+    </div>
+
+    <div class="grid-2 fade-in-up delay-1" style="margin-top:2rem">
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS — Barre progression</span>
+          </div>
+          <pre><span class="sel">#scroll-progress</span> {
+  <span class="pr">position</span>: <span class="val">fixed</span>;
+  <span class="pr">top</span>: <span class="val">0</span>; <span class="pr">left</span>: <span class="val">0</span>;
+  <span class="pr">height</span>: <span class="val">3px</span>; <span class="pr">width</span>: <span class="val">0%</span>;
+  <span class="pr">background</span>: <span class="fn">linear-gradient</span>(
+    <span class="val">90deg,
+    #8B6914, #B8860B, #D4AF37</span>);
+  <span class="pr">box-shadow</span>: <span class="val">0 0 20px
+    rgba(184,134,11,0.4)</span>;
+  <span class="pr">z-index</span>: <span class="val">10000</span>;
+  <span class="pr">transition</span>: <span class="val">width 0.05s linear</span>;
+}</pre>
+        </div>
+      </div>
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">JS — Mise à jour scroll</span>
+          </div>
+          <pre><span class="kw">window</span>.<span class="fn">addEventListener</span>(
+  <span class="st">'scroll'</span>, <span class="kw">() =></span> {
+  <span class="kw">const</span> <span class="vr">top</span> = <span class="kw">window</span>.<span class="pr">scrollY</span>;
+  <span class="kw">const</span> <span class="vr">height</span> =
+    <span class="kw">document</span>.<span class="pr">documentElement</span>
+    .<span class="pr">scrollHeight</span>
+    - <span class="kw">window</span>.<span class="pr">innerHeight</span>;
+  <span class="kw">const</span> <span class="vr">pct</span> = (<span class="vr">top</span> / <span class="vr">height</span>) * <span class="nm">100</span>;
+  <span class="fn">progress</span>.<span class="pr">style</span>.<span class="pr">width</span>
+    = <span class="vr">pct</span> + <span class="st">'%'</span>;
+});</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block fade-in-up delay-2" style="margin-top:1.5rem">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <span class="code-lang">JS — IntersectionObserver (animations au scroll)</span>
+      </div>
+      <pre><span class="cm">// Configuration de l'observer</span>
+<span class="kw">const</span> <span class="vr">observer</span> = <span class="kw">new</span> <span class="fn">IntersectionObserver</span>(<span class="kw">(entries) =></span> {
+  <span class="vr">entries</span>.<span class="fn">forEach</span>(<span class="vr">entry</span> <span class="kw">=></span> {
+    <span class="kw">if</span> (<span class="vr">entry</span>.<span class="pr">isIntersecting</span>) {
+      <span class="vr">entry</span>.<span class="pr">target</span>.<span class="pr">classList</span>.<span class="fn">add</span>(<span class="st">'visible'</span>);
+    }
+  });
+}, {
+  <span class="pr">threshold</span>: <span class="nm">0.1</span>,            <span class="cm">// déclenche quand 10% visible</span>
+  <span class="pr">rootMargin</span>: <span class="st">'0px 0px -50px 0px'</span>  <span class="cm">// décalage 50px vers le haut</span>
+});
+
+<span class="cm">// Observer tous les éléments .fade-in-up</span>
+<span class="kw">document</span>.<span class="fn">querySelectorAll</span>(<span class="st">'.fade-in-up'</span>)
+  .<span class="fn">forEach</span>(<span class="vr">el</span> <span class="kw">=></span> <span class="vr">observer</span>.<span class="fn">observe</span>(<span class="vr">el</span>));</pre>
+    </div>
+
+    <div class="code-block fade-in-up delay-3" style="margin-top:1rem">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <span class="code-lang">CSS — Classe .fade-in-up + stagger delays</span>
+      </div>
+      <pre><span class="sel">.fade-in-up</span> {
+  <span class="pr">opacity</span>: <span class="val">0</span>;
+  <span class="pr">transform</span>: <span class="fn">translateY</span>(<span class="val">30px</span>);
+  <span class="pr">transition</span>:
+    <span class="val">opacity 0.8s</span> <span class="fn">cubic-bezier</span>(<span class="val">0.16, 1, 0.3, 1</span>),
+    <span class="val">transform 0.8s</span> <span class="fn">cubic-bezier</span>(<span class="val">0.16, 1, 0.3, 1</span>);
+  <span class="cm">/* cubic-bezier(0.16,1,0.3,1) = easing "spring"
+     identique à celui de Framer Motion */</span>
+}
+<span class="sel">.fade-in-up.visible</span> {
+  <span class="pr">opacity</span>: <span class="val">1</span>;
+  <span class="pr">transform</span>: <span class="fn">translateY</span>(<span class="val">0</span>);
+}
+
+<span class="cm">/* Stagger — effet cascade */</span>
+<span class="sel">.delay-1</span> { <span class="pr">transition-delay</span>: <span class="val">0.1s</span>; }
+<span class="sel">.delay-2</span> { <span class="pr">transition-delay</span>: <span class="val">0.2s</span>; }
+<span class="sel">.delay-3</span> { <span class="pr">transition-delay</span>: <span class="val">0.3s</span>; }
+<span class="sel">.delay-4</span> { <span class="pr">transition-delay</span>: <span class="val">0.4s</span>; }
+<span class="sel">.delay-5</span> { <span class="pr">transition-delay</span>: <span class="val">0.5s</span>; }</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 6 — COMPOSANTS
+=========================================== -->
+<section class="section section-dark" id="composants">
+  <div class="container">
+    <div class="section-number fade-in-up">06</div>
+    <div class="section-label fade-in-up">Composants UI</div>
+    <h2 class="section-title fade-in-up">Composants <span class="gold">Réutilisables</span></h2>
+    <p class="section-subtitle fade-in-up">Chaque composant est une classe CSS réutilisable. Voici les principaux avec leur code exact.</p>
+
+    <div class="grid-2 fade-in-up">
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em">Navigation fixe — Glassmorphism</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">nav</span> {
+  <span class="pr">position</span>: <span class="val">fixed</span>;
+  <span class="pr">top</span>: <span class="val">3px</span>; <span class="cm">/* sous scroll bar */</span>
+  <span class="pr">backdrop-filter</span>:
+    <span class="fn">blur</span>(<span class="val">20px</span>) <span class="fn">saturate</span>(<span class="val">1.8</span>);
+  <span class="pr">background</span>: <span class="val">rgba(0,0,0,0.8)</span>;
+  <span class="pr">border-bottom</span>: <span class="val">1px solid
+    rgba(255,255,255,0.06)</span>;
+  <span class="pr">height</span>: <span class="val">60px</span>;
+  <span class="pr">z-index</span>: <span class="val">9999</span>;
+}</pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em">Cards avec hover or</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">.card</span> {
+  <span class="pr">background</span>: <span class="val">#0a0a0a</span>;
+  <span class="pr">border</span>: <span class="val">1px solid
+    rgba(255,255,255,0.06)</span>;
+  <span class="pr">border-radius</span>: <span class="val">16px</span>;
+  <span class="pr">transition</span>:
+    <span class="val">transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease</span>;
+}
+<span class="sel">.card:hover</span> {
+  <span class="pr">transform</span>: <span class="fn">translateY</span>(<span class="val">-4px</span>);
+  <span class="pr">border-color</span>:
+    <span class="val">rgba(212,175,55,0.3)</span>;
+  <span class="pr">box-shadow</span>:
+    <span class="val">0 12px 40px
+    rgba(212,175,55,0.15)</span>;
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2 fade-in-up delay-2" style="margin-top:1.5rem">
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em">Scrollbar personnalisée</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">::-webkit-scrollbar</span> {
+  <span class="pr">width</span>: <span class="val">6px</span>;
+}
+<span class="sel">::-webkit-scrollbar-thumb</span> {
+  <span class="pr">background</span>:
+    <span class="val">rgba(184,134,11,0.3)</span>;
+  <span class="pr">border-radius</span>: <span class="val">3px</span>;
+}
+<span class="sel">::-webkit-scrollbar-thumb:hover</span> {
+  <span class="pr">background</span>:
+    <span class="val">rgba(184,134,11,0.5)</span>;
+}</pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em">Watermark SVG en fond</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">CSS</span>
+          </div>
+          <pre><span class="sel">#watermark</span> {
+  <span class="pr">position</span>: <span class="val">fixed</span>;
+  <span class="pr">top</span>: <span class="val">50%</span>; <span class="pr">left</span>: <span class="val">50%</span>;
+  <span class="pr">transform</span>:
+    <span class="fn">translate</span>(<span class="val">-50%, -50%</span>);
+  <span class="pr">width</span>: <span class="val">60vw</span>;
+  <span class="pr">max-width</span>: <span class="val">750px</span>;
+  <span class="pr">opacity</span>: <span class="val">0.04</span>;
+  <span class="pr">z-index</span>: <span class="val">1</span>;
+  <span class="pr">pointer-events</span>: <span class="val">none</span>;
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 7 — DARK MODE
+=========================================== -->
+<section class="section section-gradient" id="darkmode">
+  <div class="container">
+    <div class="section-number fade-in-up">07</div>
+    <div class="section-label fade-in-up">Dark / Light Mode</div>
+    <h2 class="section-title fade-in-up">Système de <span class="gold">Thème</span></h2>
+    <p class="section-subtitle fade-in-up">Un seul fichier theme.js partagé gère le mode sombre/clair sur toutes les 42 pages via localStorage.</p>
+
+    <div class="timeline fade-in-up">
+      <div class="timeline-item">
+        <div class="timeline-label">Étape 1</div>
+        <div class="timeline-title">Chargement initial</div>
+        <div class="timeline-text">theme.js est le 1er script dans &lt;head&gt;. Il lit localStorage et applique la class 'dark' ou 'light' sur &lt;html&gt; avant que le DOM soit rendu → zéro flash.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">Étape 2</div>
+        <div class="timeline-title">CSS Variables réactives</div>
+        <div class="timeline-text">Deux blocs :root et html.dark définissent les mêmes variables avec des valeurs différentes. Le switch de class suffit à tout changer.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">Étape 3</div>
+        <div class="timeline-title">Bouton toggle</div>
+        <div class="timeline-text">window.toggleTheme() bascule la class + sauvegarde dans localStorage. Icône soleil/lune en SVG inline switche via CSS.</div>
+      </div>
+    </div>
+
+    <div class="code-block fade-in-up delay-2">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+        <span class="code-lang">JS — theme.js (code complet simplifié)</span>
+      </div>
+      <pre>(<span class="kw">function</span>() {
+  <span class="cm">// Lire le thème sauvegardé</span>
+  <span class="kw">const</span> <span class="vr">saved</span> = <span class="kw">localStorage</span>.<span class="fn">getItem</span>(<span class="st">'focus-theme'</span>);
+  <span class="kw">const</span> <span class="vr">html</span> = <span class="kw">document</span>.<span class="pr">documentElement</span>;
+
+  <span class="cm">// Appliquer AVANT rendu (évite le flash)</span>
+  <span class="vr">html</span>.<span class="pr">classList</span>.<span class="fn">remove</span>(<span class="st">'dark'</span>, <span class="st">'light'</span>);
+  <span class="vr">html</span>.<span class="pr">classList</span>.<span class="fn">add</span>(<span class="vr">saved</span> || <span class="st">'dark'</span>);
+})();
+
+<span class="cm">// Bouton toggle</span>
+<span class="kw">window</span>.<span class="fn">toggleTheme</span> = <span class="kw">function</span>() {
+  <span class="kw">const</span> <span class="vr">html</span> = <span class="kw">document</span>.<span class="pr">documentElement</span>;
+  <span class="kw">const</span> <span class="vr">isDark</span> = <span class="vr">html</span>.<span class="pr">classList</span>.<span class="fn">contains</span>(<span class="st">'dark'</span>);
+  <span class="vr">html</span>.<span class="pr">classList</span>.<span class="fn">toggle</span>(<span class="st">'dark'</span>);
+  <span class="vr">html</span>.<span class="pr">classList</span>.<span class="fn">toggle</span>(<span class="st">'light'</span>);
+  <span class="kw">localStorage</span>.<span class="fn">setItem</span>(
+    <span class="st">'focus-theme'</span>,
+    <span class="vr">isDark</span> ? <span class="st">'light'</span> : <span class="st">'dark'</span>
+  );
+};</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     SECTION 8 — REPRODUIRE
+=========================================== -->
+<section class="section section-dark" id="reproduire">
+  <div class="container">
+    <div class="section-number fade-in-up">08</div>
+    <div class="section-label fade-in-up">Conclusion</div>
+    <h2 class="section-title fade-in-up">Reproduire ce Site <span class="gold">Exactement</span></h2>
+    <p class="section-subtitle fade-in-up">La recette complète. Zéro outil payant, zéro framework complexe.</p>
+
+    <div class="grid-4 fade-in-up">
+      <div class="card stat-box">
+        <div class="stat-value">0€</div>
+        <div class="stat-label">Coût outils</div>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-value">2-3j</div>
+        <div class="stat-label">Pour reproduire</div>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Dépendances JS</div>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-value">~60</div>
+        <div class="stat-label">Variables CSS</div>
+      </div>
+    </div>
+
+    <div class="grid-2 fade-in-up delay-2" style="margin-top:2rem">
+      <div class="card card-gold">
+        <h3 style="color:var(--gold);margin-bottom:1.25rem">✅ Ce dont tu as besoin</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-label">Base</div>
+            <div class="timeline-title">Un éditeur de code</div>
+            <div class="timeline-text">VS Code (gratuit). C'est tout.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-label">Police</div>
+            <div class="timeline-title">Google Fonts — Inter</div>
+            <div class="timeline-text">Un simple lien dans le &lt;head&gt;. Gratuit.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-label">Hébergement</div>
+            <div class="timeline-title">Vercel</div>
+            <div class="timeline-text">Drag & drop du dossier = live en 30 secondes.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-label">Coût</div>
+            <div class="timeline-title">Zéro euro</div>
+            <div class="timeline-text">Tout est gratuit. Vercel free tier, Google Fonts gratuit, HTML/CSS natif.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em">Structure de fichiers à reproduire</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span></div>
+            <span class="code-lang">Structure</span>
+          </div>
+          <pre><span class="vr">mon-site/</span>
+├── <span class="fn">index.html</span>       <span class="cm"># page d'accueil</span>
+├── <span class="fn">theme.css</span>        <span class="cm"># design system global</span>
+├── <span class="fn">theme.js</span>         <span class="cm"># dark/light mode</span>
+├── <span class="vr">section-1/</span>
+│   ├── <span class="fn">index.html</span>   <span class="cm"># liste modules</span>
+│   ├── <span class="fn">01-page.html</span>
+│   └── <span class="fn">02-page.html</span>
+└── <span class="vr">section-2/</span>
+    └── <span class="fn">...</span>
+
+<span class="cm"># Chaque .html est autonome :
+# - CSS inline dans &lt;style&gt;
+# - JS inline dans &lt;script&gt;
+# - Charge ../theme.css et ../theme.js</span></pre>
+        </div>
+
+        <div class="tip-box" style="margin-top:1rem">
+          <div class="tip-box-title">⚡ Ordre de création</div>
+          <p>1. Crée theme.css avec les variables<br>
+             2. Crée theme.js pour le dark mode<br>
+             3. Crée index.html avec le design<br>
+             4. Duplique les pages de contenu<br>
+             5. Drag & drop sur Vercel → live</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <svg viewBox="0 0 124 226" xmlns="http://www.w3.org/2000/svg"><path d="M123.05 0V36.93H41.15V87.33L41.45 87.63H120.65V124.36H41.45L41.15 124.66V202.01L20.52 213.39L0.200012 225.56L0 28.35V8.38998C1 4.14998 4.13998 0.999979 8.38998 0.00997925H123.05V0Z"/></svg>
+  <p class="footer-text">Audit réalisé par <span>Zeno</span> · Même design que le site analysé · Ghost 2026</p>
+</footer>
+
+<script>
+// SCROLL PROGRESS
+const progress = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const top = window.scrollY;
+  const height = document.documentElement.scrollHeight - window.innerHeight;
+  progress.style.width = (top / height * 100) + '%';
+});
+
+// INTERSECTION OBSERVER — animations au scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
